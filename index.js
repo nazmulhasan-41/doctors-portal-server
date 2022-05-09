@@ -24,6 +24,8 @@ client.connect(err => {
   const prescriptsCol = client.db("doctorsDB").collection("prescripts");
   const serviceCol = client.db("doctorsDB").collection("services");
   const doctorRegisteredCol = client.db("doctorsDB").collection("allDoctors");
+ const addReviewInAppointment = client.db("doctorsDB").collection("reviewForAppointment");
+ const reviewsCol = client.db("doctorsDB").collection("reviews");
 
 
   app.get('/', (req, res) => {
@@ -31,9 +33,7 @@ client.connect(err => {
   })
 
   app.post('/addAppointment', (req, res) => {
-
-
-    console.log(req.body);
+    // console.log(req.body);
     appointmentsCol.insertOne(req.body)
       .then(result => {
         res.send(result)
@@ -68,6 +68,22 @@ client.connect(err => {
       })
   })
 
+  app.post('/addReviewInAppointment', (req, res) => {
+    // console.log(req.body)
+    addReviewInAppointment.insertOne(req.body)
+      .then(result => {
+        res.send(result)
+      })
+  })
+
+  app.post('/addReview', (req, res) => {
+    // console.log(req.body)
+    reviewsCol.insertOne(req.body)
+      .then(result => {
+
+        res.send(result)
+      })
+  })
 
 
   app.put('/updateAppointment', (req, res) => {
@@ -89,7 +105,7 @@ client.connect(err => {
     var receivedStringObj = req.params.obj;
     var jsonObj = JSON.parse(receivedStringObj);
 
-    console.log(jsonObj);
+    // console.log(jsonObj);
 
     appointmentsCol.find(jsonObj).toArray((err, doc) => {
       console.log(doc)
@@ -108,7 +124,7 @@ client.connect(err => {
     var jsonObj = JSON.parse(receivedStringObj);
 
     doctorsCol.find(jsonObj).toArray((err, doc) => {
-      console.log(doc)
+      // console.log(doc)
       res.send(doc[0])
     })
   })
@@ -123,11 +139,47 @@ client.connect(err => {
   app.get('/getAllAppointments', (req, res) => {
    
     appomntAddedByDocCol.find({}).toArray((err, doc) => {
-      console.log(doc)
+      // console.log(doc)
+      res.send(doc)
+    })
+  })
+  
+  app.get('/getReviewInfo/:_id', (req, res) => {
+    addReviewInAppointment.find({appmntId: req.params._id}).toArray((err, doc) => {
+      // console.log(doc)
       res.send(doc)
     })
   })
 
+  app.get('/getReviews/:_id', (req, res) => {
+
+    var convertedObjectid = ObjectId(req.params.id);    
+
+    reviewsCol.find({docsAppmntId: req.params._id}).toArray((err, doc) => {
+      res.send(doc)
+    })
+  })
+
+
+  app.get('/getAppmntAddedByDoc/:id', (req, res) => {
+        
+    var convertedObjectid = ObjectId(req.params.id);
+    console.log(convertedObjectid);
+
+    appomntAddedByDocCol.find({_id: convertedObjectid}).toArray((err, doc) => {
+      // console.log(doc)
+      res.send(doc[0])
+    })
+  })
+  
+  app.get('/getServiceName/:_id', (req, res) => {
+
+    var convertedObjectid = ObjectId(req.params._id);    
+
+    serviceCol.find({_id: convertedObjectid}).toArray((err, doc) => {
+      res.send(doc[0])
+    })
+  })
 
 
 });
