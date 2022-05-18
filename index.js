@@ -29,7 +29,7 @@ client.connect(err => {
 
 
   app.get('/', (req, res) => {
-    res.send('Hello Whjhjhjhjorld!')
+    res.send('Hello checking!')
   })
 
   app.post('/addAppointment', (req, res) => {
