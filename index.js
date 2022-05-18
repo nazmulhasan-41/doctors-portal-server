@@ -3,7 +3,6 @@ const app = express()
 const port = 5000;
 var cors = require('cors')
 var bodyParser = require('body-parser')
-// ObjectId = require('mongodb').ObjectID;
 
 
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -26,6 +25,7 @@ client.connect(err => {
   const doctorRegisteredCol = client.db("doctorsDB").collection("allDoctors");
  const addReviewInAppointment = client.db("doctorsDB").collection("reviewForAppointment");
  const reviewsCol = client.db("doctorsDB").collection("reviews");
+ const blogsCol = client.db("doctorsDB").collection("blogs");
 
 
   app.get('/', (req, res) => {
@@ -85,6 +85,14 @@ client.connect(err => {
       })
   })
 
+  app.post('/addBlog', (req, res) => {
+    // console.log(req.body)
+    blogsCol.insertOne(req.body)
+      .then(result => {
+        res.send(result)
+      })
+  })
+
 
   app.put('/updateAppointment', (req, res) => {
     var convertedObjectid = ObjectId(req.body._id);
@@ -99,7 +107,19 @@ client.connect(err => {
       .then(result => {
         res.send({ modified: true })
       })
-  })
+  });
+
+  
+  // app.get('/getServiceFromAppointmentId/:appointmentId', (req, res) => {
+  //   var convertedObjectid = ObjectId(req.body.appointmentId);
+    
+  //   console.log(convertedObjectid);
+  //   appointmentsCol.find({_id:convertedObjectid}).toArray((err, doc) => {
+      
+  //     res.send(doc)
+  //   })
+
+  // });
 
   app.get('/getAppointments/:obj', (req, res) => {
     var receivedStringObj = req.params.obj;
@@ -108,7 +128,7 @@ client.connect(err => {
     // console.log(jsonObj);
 
     appointmentsCol.find(jsonObj).toArray((err, doc) => {
-      console.log(doc)
+      
       res.send(doc)
     })
   })
@@ -164,7 +184,7 @@ client.connect(err => {
   app.get('/getAppmntAddedByDoc/:id', (req, res) => {
         
     var convertedObjectid = ObjectId(req.params.id);
-    console.log(convertedObjectid);
+
 
     appomntAddedByDocCol.find({_id: convertedObjectid}).toArray((err, doc) => {
       // console.log(doc)
@@ -180,6 +200,25 @@ client.connect(err => {
       res.send(doc[0])
     })
   })
+
+  app.get('/getDoctorDetails/:docEmail', (req, res) => {
+
+    var convertedObjectid = ObjectId(req.params._id);    
+
+    doctorRegisteredCol.find({docEmail: req.params.docEmail}).toArray((err, doc) => {
+      res.send(doc[0])
+    })
+  })
+
+
+   app.get('/getAllBlogs', (req, res) => {
+   
+    blogsCol.find({}).toArray((err, doc) => {
+      // console.log(doc)
+      res.send(doc)
+    })
+  })
+
 
 
 });
